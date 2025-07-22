@@ -14,4 +14,15 @@ class FeatureEngineering:
         self.data['time_since_signup'] = (self.data['purchase_time'] - self.data['signup_time']).dt.total_seconds() / 3600
         return self.data
 
+    def add_transaction_frequency_and_velocity(self):
+        df = self.data
+        # Frequency: count of transactions per IP address
+        ip_freq = df.groupby('ip_address')['purchase_time'].count().rename("transaction_count")
+        df = df.merge(ip_freq, on='ip_address', how='left')
+        # Velocity: time between transactions
+        df = df.sort_values(by=['ip_address', 'purchase_time'])
+        df['prev_time'] = df.groupby('ip_address')['purchase_time'].shift(1)
+        df['velocity'] = (df['purchase_time'] - df['prev_time']).dt.total_seconds() / 60  # in minutes
+        df['velocity'].fillna(df['velocity'].median(), inplace=True)
+        return df
 
