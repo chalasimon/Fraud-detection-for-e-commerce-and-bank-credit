@@ -37,3 +37,8 @@ class Preprocessor:
         scaler = StandardScaler()
         df[numerical_cols] = scaler.fit_transform(df[numerical_cols])
         return df
+    def one_hot_encode_features(self, df):
+        categorical_cols = ['source', 'browser', 'sex', 'country']
+        # one-hot encode categorical features
+        df_encoded = pd.get_dummies(df, columns=categorical_cols, drop_first=True)
+        return df_encoded
