@@ -92,13 +92,3 @@ class Visualization:
             sns.pairplot(self.data[num_cols])
             plt.suptitle('Pairplot of Numerical Features', y=1.02)
             plt.show()
-
-    def correlation_matrix(self):
-        # Correlation matrix for numerical columns
-        num_cols = self.data.select_dtypes(include=['number']).columns
-        if len(num_cols) > 0:
-            plt.figure(figsize=(12, 8))
-            corr_matrix = self.data[num_cols].corr()
-            sns.heatmap(corr_matrix, annot=True, fmt='.2f', cmap='coolwarm', square=True)
-            plt.title('Correlation Matrix of Numerical Features')
-            plt.show()
