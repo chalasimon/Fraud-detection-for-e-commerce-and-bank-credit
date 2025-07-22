@@ -92,3 +92,14 @@ class Visualization:
             sns.pairplot(self.data[num_cols])
             plt.suptitle('Pairplot of Numerical Features', y=1.02)
             plt.show()
+    # geolocation_analysis
+    def geolocation_analysis(self, df, column):
+        # filter top 10
+        top_10 = df[column].value_counts().nlargest(10)
+        plt.figure(figsize=(12, 6))
+        sns.countplot(data=df, x=column, order=top_10.index)
+        plt.title(f'Distribution of {column}')
+        plt.xlabel(column)
+        plt.ylabel('Count')
+        plt.xticks(rotation=45)
+        plt.show()
