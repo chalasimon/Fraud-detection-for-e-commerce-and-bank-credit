@@ -103,3 +103,12 @@ class Visualization:
         plt.ylabel('Count')
         plt.xticks(rotation=45)
         plt.show()
+    def class_distribution(self, df, target_column):
+        # plot class distribution
+        plt.figure(figsize=(8, 6))
+        sns.countplot(data=df, x=target_column)
+        plt.title(f'Distribution of {target_column}')
+        plt.xlabel(target_column)
+        plt.ylabel('Count')
+        plt.xticks(rotation=45)
+        plt.show()
