@@ -26,4 +26,7 @@ class Preprocessor:
             self.data['signup_time'] = pd.to_datetime(self.data['signup_time'], errors='coerce')
         if 'purchase_time' in self.data.columns:
             self.data['purchase_time'] = pd.to_datetime(self.data['purchase_time'], errors='coerce')
+        # convert class column to categorical type
+        if 'class' in self.data.columns:
+            self.data['class'] = self.data['class'].astype('category')
         return self.data
