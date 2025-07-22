@@ -2,6 +2,8 @@
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
+from sklearn.model_selection import train_test_split
+from imblearn.over_sampling import SMOTE
 
 class FeatureEngineering:
     def __init__(self, data: pd.DataFrame):
@@ -25,4 +27,3 @@ class FeatureEngineering:
         df['velocity'] = (df['purchase_time'] - df['prev_time']).dt.total_seconds() / 60  # in minutes
         df['velocity'].fillna(df['velocity'].median(), inplace=True)
         return df
-

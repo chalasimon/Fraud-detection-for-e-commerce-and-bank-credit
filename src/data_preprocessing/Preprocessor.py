@@ -1,5 +1,6 @@
 # import the libraries
 import pandas as pd
+from sklearn.preprocessing import StandardScaler
 
 class Preprocessor:
     def __init__(self, data: pd.DataFrame):
@@ -30,3 +31,9 @@ class Preprocessor:
         if 'class' in self.data.columns:
             self.data['class'] = self.data['class'].astype('category')
         return self.data
+    def scale_numerical_features(self,df):
+        # scale numerical features using StandardScaler
+        numerical_cols = df.select_dtypes(include=['int64', 'float64']).columns
+        scaler = StandardScaler()
+        df[numerical_cols] = scaler.fit_transform(df[numerical_cols])
+        return df
