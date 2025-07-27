@@ -17,13 +17,9 @@ class FeatureEngineering:
         return self.data
 
     def add_transaction_frequency_and_velocity(self):
-        df = self.data
-        # Frequency: count of transactions per IP address
-        ip_freq = df.groupby('ip_address')['purchase_time'].count().rename("transaction_count")
-        df = df.merge(ip_freq, on='ip_address', how='left')
-        # Velocity: time between transactions
-        df = df.sort_values(by=['ip_address', 'purchase_time'])
-        df['prev_time'] = df.groupby('ip_address')['purchase_time'].shift(1)
-        df['velocity'] = (df['purchase_time'] - df['prev_time']).dt.total_seconds() / 60  # in minutes
-        df['velocity'].fillna(df['velocity'].median(), inplace=True)
-        return df
+        # Frequency: count of transactions per ip address
+        self.data['transaction_frequency']= self.data.groupby('ip_address')['ip_address'].transform('count')
+        self.data = self.data.sort_values(by=['ip_address', 'purchase_time'])
+        # Time difference in seconds between consecutive transactions from same IP
+        self.data['time_diff'] = self.data.groupby('ip_address')['purchase_time'].diff().dt.total_seconds().fillna(0)
+        return self.data
