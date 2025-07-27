@@ -8,7 +8,7 @@ from sklearn.metrics import classification_report, confusion_matrix, roc_auc_sco
 import matplotlib.pyplot as plt
 import seaborn as sns
 
-class DataPreparation:
+class ModelBuilder:
     def __init__(self, data: pd.DataFrame):
         # initialize the data with the provided DataFrame
         self.data = data
