@@ -33,7 +33,11 @@ class Preprocessor:
         return self.data
     def scale_numerical_features(self,df):
         # scale numerical features using StandardScaler
-        numerical_cols = df.select_dtypes(include=['int64', 'float64']).columns
+        exclude_cols = ['class', 'sex', 'category', 'country', 'source']  # adjust based on your data
+        numerical_cols = [
+        col for col in df.select_dtypes(include=['int64', 'float64']).columns
+                if col not in exclude_cols
+        ]
         scaler = StandardScaler()
         df[numerical_cols] = scaler.fit_transform(df[numerical_cols])
         return df
