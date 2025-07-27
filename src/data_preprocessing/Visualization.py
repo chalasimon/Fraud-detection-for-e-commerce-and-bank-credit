@@ -112,3 +112,32 @@ class Visualization:
         plt.ylabel('Count')
         plt.xticks(rotation=45)
         plt.show()
+    def class_distribution_over_sex(self):
+        # Ensure class is categorical and ordered
+        self.data['class'] = self.data['class'].astype(int)
+
+        # Count occurrences
+        class_counts = self.data.groupby(['sex', 'class']).size().reset_index(name='count')
+
+        # Sort for consistent color order (0: Not Fraud, 1: Fraud)
+        class_counts['class'] = class_counts['class'].map({0: 'Not Fraud (0)', 1: 'Fraud (1)'})
+
+        # Define color palette matching the order of class labels
+        palette = {'Not Fraud (0)': '#91d5ff', 'Fraud (1)': '#ff7875'}
+
+        # Plot
+        plt.figure(figsize=(8, 5))
+        sns.barplot(
+            data=class_counts,
+            x='sex',
+            y='count',
+            hue='class',
+            palette=palette
+        )
+
+        plt.title('Transaction Class Distribution by Sex', fontsize=14)
+        plt.xlabel('Sex')
+        plt.ylabel('Transaction Count')
+        plt.legend(title='Class')
+        plt.tight_layout()
+        plt.show()
