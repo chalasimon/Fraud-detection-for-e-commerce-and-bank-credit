@@ -9,16 +9,42 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.metrics import classification_report, confusion_matrix, roc_auc_score, precision_recall_curve, f1_score
 import matplotlib.pyplot as plt
 import seaborn as sns
+from sklearn.preprocessing import LabelEncoder
 
 class ModelBuilder:
     def __init__(self, data: pd.DataFrame):
         # initialize the data with the provided DataFrame
         self.data = data
 
+    def prepare_data(self):
+        # Convert 'purchase_time' to datetime
+        if 'purchase_time' in self.data.columns:
+            self.data['purchase_time'] = pd.to_datetime(self.data['purchase_time'])
+            # Drop raw datetime and redundant columns
+            self.data.drop(columns=['purchase_time'], inplace=True)
+        if 'signup_time' in self.data.columns:
+            self.data['signup_time'] = pd.to_datetime(self.data['signup_time'])
+            # Drop raw datetime and redundant columns
+            self.data.drop(columns=['signup_time'], inplace=True)
+        # Handle categorical string columns
+        object_cols = self.data.select_dtypes(include='object').columns
+
+        for col in object_cols:
+            if col == 'device_id':
+                le = LabelEncoder()
+                self.data[col] = le.fit_transform(self.data[col])
+            else:
+                self.data = pd.get_dummies(self.data, columns=[col], drop_first=True)
+        # Clean column names to remove special JSON characters
+        self.data.columns = self.data.columns.str.replace(r'[{}[\]":,]', '', regex=True)
+        self.data.columns = self.data.columns.str.replace(r'\W+', '_', regex=True)
+        return self.data
+
     def split_data(self, target, test_size=0.2, random_state=42):
         X = self.data.drop(columns=[target])
         y = self.data[target]
         return train_test_split(X, y, test_size=test_size, random_state=random_state, stratify=y)
+
     def handle_imbalance(self, X_train, y_train):
         # handle class imbalance using SMOTE
         smote = SMOTE(random_state=42)
@@ -26,12 +52,13 @@ class ModelBuilder:
         return X_resampled, y_resampled
 
     def train_logistic_regression(self, X_train, y_train):
-        model = LogisticRegression(max_iter=2000, class_weight='balanced',solver='lbfgs')
+        model = LogisticRegression(max_iter=2000, class_weight='balanced', solver='lbfgs')
         start_time = time.time()
         model.fit(X_train, y_train)
         end_time = time.time()
         print(f"Logistic Regression training time: {end_time - start_time:.2f} seconds")
         return model
+
     def train_gradient_boosting(self, X_train, y_train):
         model = LGBMClassifier(n_estimators=200, learning_rate=0.1, max_depth=6)
         start_time = time.time()
@@ -39,6 +66,7 @@ class ModelBuilder:
         end_time = time.time()
         print(f"Gradient Boosting training time: {end_time - start_time:.2f} seconds")
         return model
+
     def evaluate_model(self, model, X_test, y_test):
         y_pred = model.predict(X_test)
         y_prob = model.predict_proba(X_test)[:, 1]
@@ -65,7 +93,12 @@ class ModelBuilder:
         
         f1 = f1_score(y_test, y_pred)
         print("F1 Score:", f1)
+
     def run_pipeline(self, target='class', test_size=0.2, random_state=42):
+        # Prepare data
+        print("Preparing data...")
+        self.prepare_data()
+
         # Split the data
         print("Splitting data...")
         X_train, X_test, y_train, y_test = self.split_data(target, test_size, random_state)
@@ -86,4 +119,3 @@ class ModelBuilder:
         self.evaluate_model(lr_model, X_test, y_test)
         print("\nGradient Boosting Model Evaluation:")
         self.evaluate_model(gb_model, X_test, y_test)
-    
