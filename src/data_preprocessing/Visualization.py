@@ -70,7 +70,7 @@ class Visualization:
         print("Frequency analysis of signup_time and purchase_time: by month and hour")
         print(50 * "-")
         if 'signup_time' in self.data.columns:
-            self.data['signup_month'] = self.data['signup_time'].dt.to_period('M')
+            self.data['signup_month'] = self.data['signup_time'].dt.month
             signup_counts = self.data['signup_month'].value_counts().sort_index()
             signup_counts.plot(kind='bar', figsize=(12, 6), title='Signups by Month')
             plt.xlabel('Month')
@@ -78,7 +78,7 @@ class Visualization:
             plt.xticks(rotation=45)
             plt.show()
         if 'purchase_time' in self.data.columns:
-            self.data['purchase_month'] = self.data['purchase_time'].dt.to_period('M')
+            self.data['purchase_month'] = self.data['purchase_time'].dt.month
             purchase_counts = self.data['purchase_month'].value_counts().sort_index()
             purchase_counts.plot(kind='bar', figsize=(12, 6), title='Purchases by Month')
             plt.xlabel('Month')
