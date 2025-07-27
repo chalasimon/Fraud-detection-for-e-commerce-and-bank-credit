@@ -3,7 +3,9 @@ import pandas as pd
 from imblearn.over_sampling import SMOTE
 from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LogisticRegression
-from sklearn.ensemble import GradientBoostingClassifier
+from lightgbm import LGBMClassifier
+import time
+from sklearn.preprocessing import StandardScaler
 from sklearn.metrics import classification_report, confusion_matrix, roc_auc_score, precision_recall_curve, f1_score
 import matplotlib.pyplot as plt
 import seaborn as sns
@@ -13,7 +15,7 @@ class ModelBuilder:
         # initialize the data with the provided DataFrame
         self.data = data
 
-    def split_data(self, target='class', test_size=0.2, random_state=42):
+    def split_data(self, target, test_size=0.2, random_state=42):
         X = self.data.drop(columns=[target])
         y = self.data[target]
         return train_test_split(X, y, test_size=test_size, random_state=random_state, stratify=y)
@@ -22,15 +24,22 @@ class ModelBuilder:
         smote = SMOTE(random_state=42)
         X_resampled, y_resampled = smote.fit_resample(X_train, y_train)
         return X_resampled, y_resampled
-    def train_logistic_regression(X_train, y_train):
-        model = LogisticRegression(max_iter=1000, class_weight='balanced')
+
+    def train_logistic_regression(self, X_train, y_train):
+        model = LogisticRegression(max_iter=2000, class_weight='balanced',solver='lbfgs')
+        start_time = time.time()
         model.fit(X_train, y_train)
+        end_time = time.time()
+        print(f"Logistic Regression training time: {end_time - start_time:.2f} seconds")
         return model
-    def train_gradient_boosting(X_train, y_train):
-        model = GradientBoostingClassifier(n_estimators=200, learning_rate=0.1, max_depth=6)
+    def train_gradient_boosting(self, X_train, y_train):
+        model = LGBMClassifier(n_estimators=200, learning_rate=0.1, max_depth=6)
+        start_time = time.time()
         model.fit(X_train, y_train)
+        end_time = time.time()
+        print(f"Gradient Boosting training time: {end_time - start_time:.2f} seconds")
         return model
-    def evaluate_model(model, X_test, y_test):
+    def evaluate_model(self, model, X_test, y_test):
         y_pred = model.predict(X_test)
         y_prob = model.predict_proba(X_test)[:, 1]
         
@@ -58,19 +67,23 @@ class ModelBuilder:
         print("F1 Score:", f1)
     def run_pipeline(self, target='class', test_size=0.2, random_state=42):
         # Split the data
+        print("Splitting data...")
         X_train, X_test, y_train, y_test = self.split_data(target, test_size, random_state)
         
         # Handle class imbalance
+        print("Handling class imbalance...")
         X_train_resampled, y_train_resampled = self.handle_imbalance(X_train, y_train)
         
         # Train models
+        print("Training Logistic Regression model...")
         lr_model = self.train_logistic_regression(X_train_resampled, y_train_resampled)
+        print("Training Gradient Boosting model...")
         gb_model = self.train_gradient_boosting(X_train_resampled, y_train_resampled)
         
         # Evaluate models
+        print("Evaluating models...")
         print("Logistic Regression Model Evaluation:")
         self.evaluate_model(lr_model, X_test, y_test)
-        
         print("\nGradient Boosting Model Evaluation:")
         self.evaluate_model(gb_model, X_test, y_test)
     
