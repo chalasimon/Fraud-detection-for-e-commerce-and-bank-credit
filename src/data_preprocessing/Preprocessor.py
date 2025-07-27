@@ -31,15 +31,21 @@ class Preprocessor:
         if 'class' in self.data.columns:
             self.data['class'] = self.data['class'].astype('category')
         return self.data
-    def scale_numerical_features(self,df):
-        # scale numerical features using StandardScaler
-        exclude_cols = ['class', 'sex', 'category', 'country', 'source']  # adjust based on your data
-        numerical_cols = [
-        col for col in df.select_dtypes(include=['int64', 'float64']).columns
-                if col not in exclude_cols
-        ]
+    def scale_numerical_features(self,df,ds=False):
         scaler = StandardScaler()
-        df[numerical_cols] = scaler.fit_transform(df[numerical_cols])
+        if ds is True:
+            #for credit data
+            
+            df['Amount'] = scaler.fit_transform(df[['Amount']])
+        else:
+            # for fraud data
+            # scale numerical features using StandardScaler
+            exclude_cols = ['class', 'sex', 'category', 'country', 'source']  # adjust based on your data
+            numerical_cols = [
+            col for col in df.select_dtypes(include=['int64', 'float64']).columns
+                    if col not in exclude_cols
+            ]
+            df[numerical_cols] = scaler.fit_transform(df[numerical_cols])
         return df
     def one_hot_encode_features(self, df):
         categorical_cols = ['source', 'browser', 'sex', 'country']
