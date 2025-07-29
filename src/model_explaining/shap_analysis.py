@@ -58,9 +58,9 @@ class ShapAnalysis:
 def run_analysis(data_name=None):
     # Load models
     models = {
-        #"fraud_logistic": pickle.load(open("../models/fraud_logistic_regression_model.pkl", "rb")),
+        "fraud_logistic": pickle.load(open("../models/fraud_logistic_regression_model.pkl", "rb")),
         "fraud_gb": pickle.load(open("../models/fraud_gradient_boosting_model.pkl", "rb")),
-        #"credit_logistic": pickle.load(open("../models/credit_logistic_regression_model.pkl", "rb")),
+        "credit_logistic": pickle.load(open("../models/credit_logistic_regression_model.pkl", "rb")),
         "credit_gb": pickle.load(open("../models/credit_gradient_boosting_model.pkl", "rb"))
     }
 
@@ -87,6 +87,6 @@ def run_analysis(data_name=None):
     # Run SHAP analysis
     shap_analysis = ShapAnalysis(model, X_train)
     shap_analysis.compute_shap_values()
-    shap_analysis.summary_plot(save_path=f"shap_summary_plot_{data_name}.png")
+    shap_analysis.summary_plot(save_path=f"../screenshots/shap_summary_plot_{data_name}.png")
     shap_analysis.force_plot(row_index=0, save_path=f"../screenshots/shap_force_plot_{data_name}.png")
     print("SHAP analysis completed.")
