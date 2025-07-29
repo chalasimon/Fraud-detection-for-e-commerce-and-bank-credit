@@ -5,6 +5,9 @@ The Fraud Detection System is designed to identify and prevent fraudulent activi
 ## Features
 - **Data Preprocessing**: Handles missing values, encodes categorical variables, and scales numerical features.
 - **Feature Engineering**: Extracts relevant features from transaction data to improve model performance.   
+- **Model Training**: Implements various machine learning models, including Logistic Regression and LightGBM, to classify transactions as fraudulent or legitimate.
+- **Model Evaluation**: Uses metrics like accuracy, precision, recall, and F1-score to assess model performance.
+- **Model Explainability**: Utilizes SHAP (SHapley Additive exPlanations) to interpret model predictions and understand feature importance.
 ## Technologies Used
 - Python
 - Scikit-learn
@@ -14,6 +17,8 @@ The Fraud Detection System is designed to identify and prevent fraudulent activi
 - Jupyter Notebook
 - Matplotlib
 - Seaborn
+- SHAP
+
 ## Project Structure
 ``` plaintext
 Fraud-detection-for-e-commerce-and-bank-credit/
