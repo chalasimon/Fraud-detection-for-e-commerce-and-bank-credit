@@ -14,3 +14,8 @@ This repository contains a comprehensive project focused on fraud detection in e
 - Model Selection: Choose appropriate machine learning models for fraud detection.
 - Model Training: Train the selected models using the training dataset.
 - Model Evaluation: Evaluate the models using metrics such as accuracy, precision, recall, and F1-score.
+## Task 3: Model Explainability (shap_analysis.ipynb)
+- Implement SHAP (SHapley Additive exPlanations) to interpret model predictions.
+- Generate SHAP summary plots to visualize feature importance.
+- Create SHAP force plots to explain individual predictions.
+
