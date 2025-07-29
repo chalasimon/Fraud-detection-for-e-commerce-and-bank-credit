@@ -10,6 +10,7 @@ from sklearn.metrics import classification_report, confusion_matrix, roc_auc_sco
 import matplotlib.pyplot as plt
 import seaborn as sns
 from sklearn.preprocessing import LabelEncoder
+import pickle
 
 class ModelBuilder:
     def __init__(self, data: pd.DataFrame):
@@ -93,8 +94,14 @@ class ModelBuilder:
         
         f1 = f1_score(y_test, y_pred)
         print("F1 Score:", f1)
+    def save_model(self, model, filename):
+        # Save the model to a file using pickle
+        pickle_path = '../models/'
+        with open(pickle_path + filename, 'wb') as file:
+            pickle.dump(model, file)
+        print(f"Model saved to {pickle_path + filename}")
 
-    def run_pipeline(self, target='class', test_size=0.2, random_state=42):
+    def run_pipeline(self, target='class', test_size=0.2, random_state=42,data=None):
         # Prepare data
         print("Preparing data...")
         self.prepare_data()
@@ -119,3 +126,11 @@ class ModelBuilder:
         self.evaluate_model(lr_model, X_test, y_test)
         print("\nGradient Boosting Model Evaluation:")
         self.evaluate_model(gb_model, X_test, y_test)
+        # Save models
+        print("Saving models...")
+        if data == "fraud":
+            self.save_model(lr_model, 'fraud_logistic_regression_model.pkl')
+            self.save_model(gb_model, 'fraud_gradient_boosting_model.pkl')
+        elif data == "credit":
+            self.save_model(lr_model, 'credit_logistic_regression_model.pkl')
+            self.save_model(gb_model, 'credit_gradient_boosting_model.pkl')
