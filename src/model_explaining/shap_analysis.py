@@ -4,6 +4,7 @@ import pandas as pd
 import numpy as np
 import os
 import pickle
+from sklearn.linear_model import LogisticRegression
 
 class ShapAnalysis:
     def __init__(self, model, X_train, y_train=None):
@@ -11,11 +12,19 @@ class ShapAnalysis:
         self.X_train = X_train
         self.y_train = y_train
 
-        # Initialize SHAP explainer
-        if hasattr(model, "predict_proba"):
-            self.explainer = shap.Explainer(model.predict, X_train)
+        print("Detecting model type and initializing SHAP explainer...")
+
+        # Use TreeExplainer if the model is tree-based (e.g., Gradient Boosting, XGBoost, LightGBM)
+        if hasattr(model, "predict_proba") and hasattr(model, "feature_importances_"):
+            self.explainer = shap.TreeExplainer(model)
+
+        # Use LinearExplainer if the model is LogisticRegression
+        elif isinstance(model, LogisticRegression):
+            self.explainer = shap.LinearExplainer(model, X_train)
+
+        # Fallback to general Explainer (may be slower - uses permutation)
         else:
-            self.explainer = shap.Explainer(model, X_train)
+            self.explainer = shap.Explainer(model.predict, X_train)
 
         print("SHAP Explainer initialized.")
 
@@ -35,7 +44,7 @@ class ShapAnalysis:
     def force_plot(self, row_index=0, save_path=None):
         print(f"Generating SHAP force plot for index {row_index}...")
         force = shap.plots.force(
-            self.explainer.expected_value[0],
+            self.explainer.expected_value[0] if isinstance(self.explainer.expected_value, list) else self.explainer.expected_value,
             self.shap_values[row_index].values,
             self.X_train.iloc[row_index],
             matplotlib=True,
@@ -45,12 +54,13 @@ class ShapAnalysis:
             plt.savefig(save_path, bbox_inches="tight")
             print(f"SHAP force plot saved to {save_path}")
         plt.show()
-def run_analysis(self, data_name=None):
+
+def run_analysis(data_name=None):
     # Load models
     models = {
-        "fraud_logistic": pickle.load(open("../models/fraud_logistic_regression_model.pkl", "rb")),
+        #"fraud_logistic": pickle.load(open("../models/fraud_logistic_regression_model.pkl", "rb")),
         "fraud_gb": pickle.load(open("../models/fraud_gradient_boosting_model.pkl", "rb")),
-        "credit_logistic": pickle.load(open("../models/credit_logistic_regression_model.pkl", "rb")),
+        #"credit_logistic": pickle.load(open("../models/credit_logistic_regression_model.pkl", "rb")),
         "credit_gb": pickle.load(open("../models/credit_gradient_boosting_model.pkl", "rb"))
     }
 
@@ -59,6 +69,7 @@ def run_analysis(self, data_name=None):
         "fraud": pd.read_csv("../data/processed/resampled_X_train_fraud.csv"),
         "credit": pd.read_csv("../data/processed/resampled_X_train_credit.csv")
     }
+
     # Run check for data_name
     if data_name == "fraud":
         X_train = data["fraud"]
@@ -68,7 +79,12 @@ def run_analysis(self, data_name=None):
         model = models["credit_gb"]
     else:
         raise ValueError("Invalid data_name. Choose 'fraud' or 'credit'.")
-    # run SHAP analysis
+
+    # Ensure data type is int (optional, depends on your training flow)
+    X_train = X_train.astype(int)
+    print(X_train.dtypes)
+
+    # Run SHAP analysis
     shap_analysis = ShapAnalysis(model, X_train)
     shap_analysis.compute_shap_values()
     shap_analysis.summary_plot(save_path=f"shap_summary_plot_{data_name}.png")
