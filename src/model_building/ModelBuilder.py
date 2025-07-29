@@ -113,7 +113,17 @@ class ModelBuilder:
         # Handle class imbalance
         print("Handling class imbalance...")
         X_train_resampled, y_train_resampled = self.handle_imbalance(X_train, y_train)
-        
+
+
+        # save resampled data for further analysis
+        print("Saving resampled data...")
+        if data == "fraud":
+            X_train_resampled.to_csv('../data/processed/resampled_X_train_fraud.csv', index=False)
+            y_train_resampled.to_csv('../data/processed/resampled_y_train_fraud.csv', columns=['class'], index=False)
+        elif data == "credit":
+            # save resampled data for credit card fraud detection
+            X_train_resampled.to_csv('../data/processed/resampled_X_train_credit.csv', index=False)
+            y_train_resampled.to_csv('../data/processed/resampled_y_train_credit.csv', columns=['class'], index=False)
         # Train models
         print("Training Logistic Regression model...")
         lr_model = self.train_logistic_regression(X_train_resampled, y_train_resampled)
